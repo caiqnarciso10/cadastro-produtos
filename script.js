@@ -25,8 +25,22 @@ const dlg     = document.getElementById('dlg');
 const addForm = document.getElementById('addForm');
 const fab     = document.querySelector('.fab');
 
-// ===== Canais =====
-const CHANNELS = ["Tiny","Mercado Livre","Shopee","Shein"];
+// ===== Canais + logos (ordem define o cálculo da %)
+const CHANNELS = [
+  "Tiny",
+  "Mercado Livre",
+  "Shopee",
+  "Shein",
+  "Magalu"
+];
+
+const CHANNEL_LOGOS = {
+  "Tiny":           "assets/logo-tiny.jpg",
+  "Mercado Livre":  "assets/mercado-livre.jpg",
+  "Shopee":         "assets/logo-shopee.jpg",
+  "Shein":          "assets/logo-shein.jpg",
+  "Magalu":         "assets/logo-magalu.jpg"
+};
 
 // ===== Helpers =====
 const pct = (channelsObj) => {
@@ -47,8 +61,7 @@ async function fileToDataURLCompressed(file, maxSide = 1024, quality = 0.72) {
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(bitmap, 0, 0, w, h);
-  const dataUrl = canvas.toDataURL('image/jpeg', quality);
-  return dataUrl;
+  return canvas.toDataURL('image/jpeg', quality);
 }
 
 // ===== FAB abre diálogo =====
@@ -56,9 +69,6 @@ fab?.addEventListener('click', () => dlg.showModal());
 
 // ===== Render de um produto (A → B → C → D) =====
 function renderItem(id, data){
-  // caminho da logo (preenche o círculo via CSS background-image)
-  const LOGO_URL = "assets/mercado-livre.jpg";
-
   const div = document.createElement('div');
   div.className = 'card';
 
@@ -79,10 +89,11 @@ function renderItem(id, data){
       <div class="channels-row">
         ${CHANNELS.map(ch=>{
           const checked = data.channels?.[ch] ? 'checked' : '';
+          const logo    = CHANNEL_LOGOS[ch] || "";
           return `
-            <div class="ch">
-              <div class="logo" style="background-image:url('${LOGO_URL}')"></div>
-              <input type="checkbox" data-ch="${ch}" data-id="${id}" ${checked}>
+            <div class="ch" title="${ch}">
+              <div class="logo" style="background-image:url('${logo}')"></div>
+              <input type="checkbox" aria-label="${ch}" data-ch="${ch}" data-id="${id}" ${checked}>
             </div>
           `;
         }).join('')}
@@ -111,7 +122,7 @@ function renderItem(id, data){
 
       const newChannels = { ...(data.channels||{}), [ch]: newVal };
       const p = Math.round(
-        (Object.values(newChannels).filter(Boolean).length / CHANNELS.length) * 100
+        (CHANNELS.filter(c => newChannels[c]).length / CHANNELS.length) * 100
       );
 
       // atualiza D visualmente
@@ -168,14 +179,15 @@ addForm?.addEventListener('submit', async (e)=>{
 
   await addDoc(collection(db,'products'), {
     priority,
-    frontData,  // data URL inline
-    backData,   // data URL inline
-    channels: {},
+    frontData,
+    backData,
+    channels: {},                 // começa zerado; os C’s vão marcando
     createdAt: serverTimestamp()
   });
 
   dlg.close();
   e.target.reset();
 });
+
 
 
