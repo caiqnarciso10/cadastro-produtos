@@ -12,23 +12,23 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// ===== SUA CONFIG DO FIREBASE =====
+// ===== Configuração do seu projeto Firebase =====
 const firebaseConfig = {
   apiKey: "AIzaSyDSSgLKXgxjVBgADi-fX-0RxvItfhkiF7k",
   authDomain: "cadastro-produtos-e9dfb.firebaseapp.com",
   projectId: "cadastro-produtos-e9dfb",
-  storageBucket: "cadastro-produtos-e9dfb.firebasestorage.app",
+  storageBucket: "cadastro-produtos-e9dfb.appspot.com", // <-- CORRETO!
   messagingSenderId: "438063963370",
   appId: "1:438063963370:web:a8e720fcc772f2940f8b93"
 };
 
-// ===== Init =====
+// ===== Inicializa Firebase =====
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 const storage = getStorage(app);
 
-// ===== UI refs =====
+// ===== Referências UI =====
 const loginBtn  = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const whoEl     = document.getElementById('who');
@@ -37,7 +37,7 @@ const dlg       = document.getElementById('dlg');
 const addForm   = document.getElementById('addForm');
 const fab       = document.querySelector('.fab');
 
-// ===== Canais (edite se quiser) =====
+// ===== Canais (pode editar) =====
 const CHANNELS = ["Tiny","Mercado Livre","Shopee","Shein"];
 
 // ===== Helpers =====
@@ -65,7 +65,7 @@ onAuthStateChanged(auth, (user) => {
 // ===== FAB abre diálogo =====
 fab?.addEventListener('click', () => dlg.showModal());
 
-// ===== Render de um produto (card) =====
+// ===== Render de um produto =====
 function renderItem(id, data){
   const div = document.createElement('div');
   div.className = 'card';
@@ -86,7 +86,6 @@ function renderItem(id, data){
 
   const progressNow = pct(data.channels);
 
-  // círculo D + barra (deixo os dois; se quiser, remova a barra)
   div.innerHTML = `
     ${thumbs}
     <div>
@@ -102,19 +101,13 @@ function renderItem(id, data){
         ${channelsHtml}
       </div>
 
-      <div class="progress" style="height:8px;background:#eef2ff;border-radius:999px;overflow:hidden">
-        <i class="bar" style="display:block;height:100%;background:#22c55e;width:${progressNow}%"></i>
+      <div class="progress-d" style="--pct:${progressNow};width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#22c55e calc(${progressNow} * 1%), #d8dee6 0);position:relative;isolation:isolate">
+        <span style="position:relative;z-index:1;font-size:11px;font-weight:700;color:#334155">${progressNow}%</span>
       </div>
-      <div class="muted" style="color:#8a94a6;font-size:12px">${progressNow}% concluído</div>
-    </div>
-
-    <div class="progress-d" style="--pct:${progressNow};width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#22c55e calc(${progressNow} * 1%), #d8dee6 0);position:relative;isolation:isolate">
-      <span style="position:relative;z-index:1;font-size:11px;font-weight:700;color:#334155">${progressNow}%</span>
     </div>
   `;
 
   const progressCircle = div.querySelector('.progress-d');
-  const progressBar    = div.querySelector('.bar');
 
   // checkboxes → atualizam canais / auto-arquivam a 100%
   div.querySelectorAll('input[type=checkbox]').forEach(cb=>{
@@ -127,12 +120,11 @@ function renderItem(id, data){
       const newChannels = { ...(data.channels||{}), [ch]: newVal };
       const p = Math.round((Object.values(newChannels).filter(Boolean).length/CHANNELS.length)*100);
 
-      // Atualiza visual imediatamente
+      // Atualiza o círculo D imediatamente
       progressCircle?.style.setProperty('--pct', p);
       progressCircle.style.background =
         `conic-gradient(#22c55e calc(${p} * 1%), #d8dee6 0)`;
       progressCircle.querySelector('span').textContent = `${p}%`;
-      if (progressBar) progressBar.style.width = `${p}%`;
 
       if(p === 100){
         await deleteDoc(refDoc);
@@ -141,7 +133,6 @@ function renderItem(id, data){
         });
       }else{
         await updateDoc(refDoc, { channels:newChannels });
-        // mantém o objeto em memória também
         data.channels = newChannels;
       }
     });
@@ -156,7 +147,7 @@ function renderItem(id, data){
   return div;
 }
 
-// ===== Listagem ao vivo (ordem por prioridade e data) =====
+// ===== Listagem ao vivo =====
 const prioRank = p => ({A:1,B:2,C:3}[p]||9);
 onSnapshot(query(collection(db,'products')), (snap)=>{
   const rows = [];
@@ -166,7 +157,7 @@ onSnapshot(query(collection(db,'products')), (snap)=>{
   rows.forEach(r => listEl.appendChild(renderItem(r.id, r)));
 });
 
-// ===== Adicionar produto (upload fotos + doc) =====
+// ===== Adicionar produto =====
 addForm?.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const front = document.getElementById('front').files[0];
@@ -195,3 +186,4 @@ addForm?.addEventListener('submit', async (e)=>{
   dlg.close();
   e.target.reset();
 });
+
