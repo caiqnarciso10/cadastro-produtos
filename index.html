@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cadastro de Produtos</title>
 
-  <!-- Aqui é onde conecta o CSS -->
-  <link rel="stylesheet" href="style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- aqui entra o seu trecho -->
+
+  <!-- FAIXA SUPERIOR (só visual, como na sua imagem) -->
   <div class="page">
     <div class="ribbon hide-scroll">
       <div class="pill-a">A</div>
@@ -44,7 +45,50 @@
     </div>
   </div>
 
-  <button class="fab">+</button>
+  <!-- HEADER com login -->
+  <header class="page" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+    <div class="muted">Status: <span id="who">offline</span></div>
+    <div class="row" style="display:flex;gap:8px">
+      <button id="loginBtn">Entrar com Google</button>
+      <button id="logoutBtn" style="display:none">Sair</button>
+    </div>
+  </header>
+
+  <!-- LISTA DE PRODUTOS RENDERIZADA PELO JS -->
+  <main class="page">
+    <section id="list" class="grid"></section>
+  </main>
+
+  <!-- DIALOG PARA ADICIONAR PRODUTO -->
+  <dialog id="dlg">
+    <form id="addForm" class="picker">
+      <strong>Novo produto</strong>
+      <label>Foto frente:
+        <input id="front" type="file" accept="image/*" capture="environment" required>
+      </label>
+      <label>Foto verso:
+        <input id="back" type="file" accept="image/*" capture="environment" required>
+      </label>
+      <label>Prioridade:
+        <select id="priority">
+          <option value="A">A (mais urgente)</option>
+          <option value="B" selected>B</option>
+          <option value="C">C</option>
+        </select>
+      </label>
+      <div class="row" style="display:flex;gap:8px">
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="document.getElementById('dlg').close()">Cancelar</button>
+      </div>
+      <p class="muted">No celular, o campo de arquivo já abre a câmera.</p>
+    </form>
+  </dialog>
+
+  <!-- BOTÃO FLUTUANTE + -->
+  <button class="fab" aria-label="Adicionar">＋</button>
+
+  <!-- JS (módulo) -->
+  <script src="script.js" type="module" defer></script>
 </body>
 </html>
 
