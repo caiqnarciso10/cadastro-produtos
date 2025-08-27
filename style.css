@@ -1,0 +1,125 @@
+/* ====== BASE / PALETA ====== */
+:root{
+  --bg: #ffffff;
+  --ribbon: #e9eff4;     /* faixa clara do topo */
+  --card: #f6f8fb;
+  --ink: #2a2f37;
+  --muted: #8a94a6;
+
+  --pill: #c8d1dc;       /* círculo A */
+  --slot: #7b8aa0;       /* quadradinho B */
+  --dot: #9aa6b2;        /* bolinha C */
+  --check-off: #d2d9e2;  /* retângulo off */
+  --check-on: #22c55e;   /* retângulo on (concluído) */
+
+  --accent: #2f6fed;     /* botão + */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:16px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* ====== FAIXA SUPERIOR (RIBBON) ====== */
+.ribbon{
+  width:100%;
+  background:var(--ribbon);
+  padding:10px 16px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* bolinha A */
+.pill-a{
+  min-width:44px; min-height:44px;
+  width:44px; height:44px;
+  border-radius:50%;
+  background:var(--pill);
+  display:grid; place-items:center;
+  color:#fff; font-weight:800; letter-spacing:.5px;
+}
+
+/* quadradinho B (fotos) */
+.slot-b{
+  width:48px; height:48px;
+  border-radius:9px;
+  background:var(--slot);
+  display:grid; place-items:center;
+  color:#fff; font-weight:800;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+}
+
+/* bolinha C (canal) com retângulo embaixo */
+.dot-wrap{
+  display:grid;
+  grid-template-rows: 36px 12px; /* bolinha e o retângulo */
+  align-items:center; justify-items:center;
+  gap:4px; width:40px;
+}
+.dot{
+  width:36px; height:36px;
+  border-radius:50%;
+  background:var(--dot);
+  display:grid; place-items:center;
+  color:#fff; font-weight:800; font-size:13px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.2);
+}
+.chk{
+  width:18px; height:10px;
+  border-radius:3px;
+  background:var(--check-off);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+  transition:background .2s ease, box-shadow .2s ease;
+}
+.chk.done{
+  background:var(--check-on);
+  box-shadow: 0 0 0 2px rgba(34,197,94,.15);
+}
+
+/* círculo D (progresso) – usa variável --pct (0 a 100) */
+.progress-d{
+  --pct: 0;
+  width:44px; height:44px; border-radius:50%;
+  display:grid; place-items:center;
+  background:
+    conic-gradient(var(--check-on) calc(var(--pct)*1%), #d8dee6 0);
+  position:relative; isolation:isolate;
+}
+.progress-d::after{
+  content:"";
+  position:absolute; inset:6px;
+  background:var(--ribbon);
+  border-radius:50%;
+}
+.progress-d span{
+  position:relative; z-index:1;
+  font-size:12px; font-weight:700; color:#334155;
+}
+
+/* ====== CONTAINER DA PÁGINA ====== */
+.page{
+  max-width:980px; margin:24px auto; padding:0 16px;
+}
+
+/* ====== BOTÃO FLUTUANTE + ====== */
+.fab{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:28px;
+  width:60px; height:60px; border-radius:50%;
+  background:var(--accent); color:#fff;
+  border:none; cursor:pointer; font-size:34px; line-height:0;
+  display:grid; place-items:center;
+  box-shadow:0 18px 30px rgba(47,111,237,.25), 0 8px 14px rgba(0,0,0,.1);
+}
+
+/* ====== ACESSÓRIOS ====== */
+.hide-scroll::-webkit-scrollbar{display:none}
+.muted{color:var(--muted); font-size:12px}
