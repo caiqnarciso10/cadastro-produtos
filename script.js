@@ -4,16 +4,13 @@ import {
   getFirestore, collection, addDoc, onSnapshot, query,
   doc, updateDoc, serverTimestamp, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 // ===== Config do seu projeto =====
 const firebaseConfig = {
   apiKey: "AIzaSyDSSgLKXgxjVBgADi-fX-0RxvItfhkiF7k",
   authDomain: "cadastro-produtos-e9dfb.firebaseapp.com",
   projectId: "cadastro-produtos-e9dfb",
-  storageBucket: "cadastro-produtos-e9dfb.appspot.com",
+  // sem storageBucket
   messagingSenderId: "438063963370",
   appId: "1:438063963370:web:a8e720fcc772f2940f8b93"
 };
@@ -21,7 +18,6 @@ const firebaseConfig = {
 // ===== Init =====
 const app = initializeApp(firebaseConfig);
 const db   = getFirestore(app);
-const storage = getStorage(app);
 
 // ===== UI refs =====
 const listEl    = document.getElementById('list');
@@ -39,6 +35,23 @@ const pct = (channelsObj) => {
 };
 const prioColor = (p) => ({A:"#1f2937",B:"#475569",C:"#94a3b8"}[p]||"#64748b");
 
+// Converte File -> dataURL comprimido (máx. 1024px, JPEG 0.72)
+async function fileToDataURLCompressed(file, maxSide = 1024, quality = 0.72) {
+  const bitmap = await createImageBitmap(file);
+  const { width, height } = bitmap;
+  let w = width, h = height;
+  if (Math.max(w, h) > maxSide) {
+    if (w >= h) { h = Math.round(h * (maxSide / w)); w = maxSide; }
+    else { w = Math.round(w * (maxSide / h)); h = maxSide; }
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const dataUrl = canvas.toDataURL('image/jpeg', quality);
+  return dataUrl; // "data:image/jpeg;base64,...."
+}
+
 // ===== FAB abre diálogo =====
 fab?.addEventListener('click', () => dlg.showModal());
 
@@ -50,8 +63,8 @@ function renderItem(id, data){
 
   const thumbs = `
     <div class="thumbs">
-      <img src="${data.frontUrl}" alt="frente" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
-      <img src="${data.backUrl}"  alt="verso"  style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
+      <img src="${data.frontData}" alt="frente" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
+      <img src="${data.backData}"  alt="verso"  style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
     </div>`;
 
   const channelsHtml = CHANNELS.map(ch=>{
@@ -134,25 +147,29 @@ onSnapshot(query(collection(db,'products')), (snap)=>{
   rows.forEach(r => listEl.appendChild(renderItem(r.id, r)));
 });
 
-// ===== Adicionar produto =====
+// ===== Adicionar produto (SEM Storage) =====
 addForm?.addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const front = document.getElementById('front').files[0];
-  const back  = document.getElementById('back').files[0];
-  const priority = document.getElementById('priority').value;
+  const frontFile = document.getElementById('front').files[0];
+  const backFile  = document.getElementById('back').files[0];
+  const priority  = document.getElementById('priority').value;
 
-  const idSeed = String(Date.now());
-  const fRef = ref(storage, `products/${idSeed}-front.jpg`);
-  const bRef = ref(storage, `products/${idSeed}-back.jpg`);
+  // Converte e comprime
+  const [frontData, backData] = await Promise.all([
+    fileToDataURLCompressed(frontFile, 1024, 0.72),
+    fileToDataURLCompressed(backFile, 1024, 0.72),
+  ]);
 
-  await uploadBytes(fRef, front);
-  await uploadBytes(bRef, back);
-
-  const frontUrl = await getDownloadURL(fRef);
-  const backUrl  = await getDownloadURL(bRef);
+  // Valida tamanho aproximado (defensivo)
+  if ((frontData.length + backData.length) > 950_000) {
+    alert("As imagens ficaram grandes. Tente tirar com menos resolução.");
+    return;
+  }
 
   await addDoc(collection(db,'products'), {
-    priority, frontUrl, backUrl,
+    priority,
+    frontData, // data URL inline
+    backData,  // data URL inline
     channels: {},
     createdAt: serverTimestamp()
   });
@@ -160,4 +177,5 @@ addForm?.addEventListener('submit', async (e)=>{
   dlg.close();
   e.target.reset();
 });
+
 
