@@ -20,10 +20,10 @@ const app = initializeApp(firebaseConfig);
 const db   = getFirestore(app);
 
 // ===== UI refs =====
-const listEl    = document.getElementById('list');
-const dlg       = document.getElementById('dlg');
-const addForm   = document.getElementById('addForm');
-const fab       = document.querySelector('.fab');
+const listEl  = document.getElementById('list');
+const dlg     = document.getElementById('dlg');
+const addForm = document.getElementById('addForm');
+const fab     = document.querySelector('.fab');
 
 // ===== Canais =====
 const CHANNELS = ["Tiny","Mercado Livre","Shopee","Shein"];
@@ -48,22 +48,16 @@ async function fileToDataURLCompressed(file, maxSide = 1024, quality = 0.72) {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(bitmap, 0, 0, w, h);
   const dataUrl = canvas.toDataURL('image/jpeg', quality);
-  return dataUrl; // "data:image/jpeg;base64,...."
+  return dataUrl;
 }
 
 // ===== FAB abre diálogo =====
 fab?.addEventListener('click', () => dlg.showModal());
 
-// ===== Render de um produto (formato A → B → C → D) =====
+// ===== Render de um produto (A → B → C → D) =====
 function renderItem(id, data){
-  // Logo simples placeholder do Mercado Livre (pode trocar por <img src="assets/ml.png"> depois)
-  const LOGO_ML = `
-    <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <ellipse cx="128" cy="128" rx="120" ry="86" fill="#FFE600"/>
-      <path d="M71 130c18-18 38-18 57 0 19-18 39-18 57 0"
-            stroke="#333" stroke-width="10" fill="none" stroke-linecap="round"/>
-    </svg>
-  `;
+  // caminho da logo (preenche o círculo via CSS background-image)
+  const LOGO_URL = "assets/mercado-livre.jpg";
 
   const div = document.createElement('div');
   div.className = 'card';
@@ -74,7 +68,7 @@ function renderItem(id, data){
     <!-- A -->
     <span class="priority-pill">${data.priority || 'A'}</span>
 
-    <!-- B (duas fotos empilhadas) -->
+    <!-- B (duas fotos lado a lado) -->
     <div class="thumbs">
       <img src="${data.frontData || data.frontUrl}" alt="frente">
       <img src="${data.backData  || data.backUrl }" alt="verso">
@@ -87,7 +81,7 @@ function renderItem(id, data){
           const checked = data.channels?.[ch] ? 'checked' : '';
           return `
             <div class="ch">
-              <div class="logo">${LOGO_ML}</div>
+              <div class="logo" style="background-image:url('${LOGO_URL}')"></div>
               <input type="checkbox" data-ch="${ch}" data-id="${id}" ${checked}>
             </div>
           `;
