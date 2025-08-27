@@ -4,13 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cadastro de Produtos</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- FAIXA SUPERIOR (só visual, como na sua imagem) -->
+  <!-- FAIXA SUPERIOR (visual) -->
   <div class="page">
     <div class="ribbon hide-scroll">
       <div class="pill-a">A</div>
@@ -45,21 +43,14 @@
     </div>
   </div>
 
-  <!-- HEADER com login -->
-  <header class="page" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-    <div class="muted">Status: <span id="who">offline</span></div>
-    <div class="row" style="display:flex;gap:8px">
-      <button id="loginBtn">Entrar com Google</button>
-      <button id="logoutBtn" style="display:none">Sair</button>
-    </div>
-  </header>
+  <!-- (REMOVIDO o header de login) -->
 
-  <!-- LISTA DE PRODUTOS RENDERIZADA PELO JS -->
+  <!-- LISTA DE PRODUTOS -->
   <main class="page">
     <section id="list" class="grid"></section>
   </main>
 
-  <!-- DIALOG PARA ADICIONAR PRODUTO -->
+  <!-- DIALOG: NOVO PRODUTO -->
   <dialog id="dlg">
     <form id="addForm" class="picker">
       <strong>Novo produto</strong>
@@ -91,4 +82,5 @@
   <script src="script.js" type="module" defer></script>
 </body>
 </html>
+
 
