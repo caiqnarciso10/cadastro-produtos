@@ -142,8 +142,13 @@ body{
   flex:0 0 auto;
 }
 
-/* B — duas fotos empilhadas */
-.thumbs{display:flex;flex-direction:column;gap:10px;flex:0 0 auto;}
+/* B — duas fotos LADO A LADO */
+.thumbs{
+  display:flex;
+  flex-direction:row;     /* <- antes era column */
+  gap:10px;
+  flex:0 0 auto;
+}
 .thumbs img{
   width:78px;height:78px;object-fit:cover;border-radius:10px;
   background:#fff;border:1px solid rgba(0,0,0,.06);
@@ -156,12 +161,20 @@ body{
   flex-wrap:nowrap;white-space:nowrap;overflow-x:auto;
 }
 .ch{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:60px}
+
+/* Logo do canal PREENCHE o círculo */
 .ch .logo{
   width:48px;height:48px;border-radius:50%;
   background:#fff;border:1px solid rgba(0,0,0,.06);
-  display:grid;place-items:center;
+  overflow:hidden;                 /* corta como círculo */
+  background-size:cover;           /* preenche */
+  background-position:center;
+  background-repeat:no-repeat;
+  display:block;
 }
-.ch .logo svg{width:28px;height:28px;display:block}
+/* se por acaso existir um SVG dentro, escondemos */
+.ch .logo svg{display:none}
+
 .ch input[type="checkbox"]{width:16px;height:16px}
 
 /* D — círculo de progresso encostado à direita */
